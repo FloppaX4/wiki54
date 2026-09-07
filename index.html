@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki54 - Inteligencia y Conocimiento</title>
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts para una tipografía premium (Inter y Playfair Display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <!-- Font Awesome para íconos elegantes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#b9defe',
+                            300: '#7cc2fd',
+                            400: '#36a2fc',
+                            500: '#0c85eb',
+                            600: '#0066c7',
+                            700: '#0152a1',
+                            800: '#054684',
+                            900: '#0a3b6e',
+                            950: '#072549',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos optimizados para renderizar el HTML que nos entrega la API de Wikipedia */
+        .wiki-content p {
+            margin-bottom: 1.25rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #374151;
+        }
+        .dark .wiki-content p {
+            color: #d1d5db;
+        }
+        .wiki-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #111827;
+        }
+        .dark .wiki-content h2 {
+            border-bottom-color: #374151;
+            color: #f9fafb;
+        }
+        .wiki-content h3 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+        .dark .wiki-content h3 {
+            color: #f3f4f6;
+        }
+        .wiki-content ul, .wiki-content ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            list-style-type: disc;
+        }
+        .wiki-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        /* Resaltar los links internos y hacer que tengan estilo interactivo */
+        .wiki-content a {
+            color: #0c85eb;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            font-weight: 500;
+        }
+        .wiki-content a:hover {
+            text-decoration: underline;
+        }
+        /* Ajustar imágenes dentro del cuerpo del artículo */
+        .wiki-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+        }
+        /* Ocultar elementos innecesarios o rotos que a veces envía Wikipedia */
+        .wiki-content .mw-empty-elt,
+        .wiki-content .mw-editsection,
+        .wiki-content .noprint,
+        .wiki-content .navbox,
+        .wiki-content .ambox,
+        .wiki-content .metadata,
+        .wiki-content .sistersitebox {
+            display: none !important;
+        }
+        /* Estilizar tablas de información que traiga Wikipedia */
+        .wiki-content table.infobox {
+            float: right;
+            clear: right;
+            margin: 0 0 1rem 1rem;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            padding: 1rem;
+            max-width: 320px;
+            font-size: 0.875rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        @media (max-width: 640px) {
+            .wiki-content table.infobox {
+                float: none;
+                max-width: 100%;
+                margin: 1rem 0;
+            }
+        }
+        .dark .wiki-content table.infobox {
+            border-color: #374151;
+            background-color: #1f2937;
+            color: #e5e7eb;
+        }
+        .wiki-content table.infobox td, .wiki-content table.infobox th {
+            padding: 0.35rem 0.5rem;
+        }
+        /* Custom scrollbar para una experiencia premium */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans transition-colors duration-200">
+
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Logotipo y Nombre de Marca -->
+            <div class="flex items-center gap-2 cursor-pointer" onclick="goToHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <span class="font-serif text-xl font-bold">W</span>
+                </div>
+                <div class="hidden sm:block">
+                    <span class="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-white">Wiki<span class="text-brand-500">54</span></span>
+                    <p class="text-[9px] text-slate-400 -mt-1 font-medium tracking-widest uppercase">Wiki54</p>
+                </div>
+            </div>
+
+            <!-- Buscador Superior -->
+            <div id="navSearchContainer" class="flex-1 max-w-xl mx-4 hidden transition-all duration-300">
+                <form onsubmit="handleSearch(event, 'navInput')" class="relative">
+                    <input type="text" id="navInput" 
+                           placeholder="Buscar en Wiki54..." 
+                           class="w-full bg-slate-100 dark:bg-slate-800 border-0 focus:ring-2 focus:ring-brand-500 rounded-xl py-2 pl-10 pr-4 text-sm transition-all text-slate-900 dark:text-white placeholder-slate-400">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Acciones Rápidas del Sistema -->
+            <div class="flex items-center gap-3">
+                <!-- Selector de Idioma -->
+                <select id="langSelect" onchange="changeLanguage()" class="bg-slate-100 dark:bg-slate-800 border-0 rounded-lg text-xs font-semibold py-1.5 px-3 focus:ring-2 focus:ring-brand-500 cursor-pointer text-slate-700 dark:text-slate-300">
+                    <option value="es" selected>ES</option>
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="pt">PT</option>
+                </select>
+
+                <!-- Toggle de Modo Oscuro -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="Cambiar Tema">
+                    <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-4rem)] flex flex-col justify-between">
+        
+        <!-- SECCIÓN 1: VISTA DE INICIO / PORTADA -->
+        <section id="homeView" class="flex-1 flex flex-col justify-center items-center py-12">
+            <div class="text-center space-y-6 max-w-3xl">
+                <!-- Logotipo gigante -->
+                <div class="inline-flex w-24 h-24 rounded-3xl bg-gradient-to-tr from-brand-500 to-brand-700 items-center justify-center text-white shadow-2xl shadow-brand-500/30 mb-4 animate-bounce">
+                    <span class="font-serif text-5xl font-extrabold">W54</span>
+                </div>
+                
+                <h1 id="heroTitle" class="font-serif text-5xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                    Descubre el conocimiento
+                </h1>
+                
+                <p id="heroDesc" class="text-lg text-slate-600 dark:text-slate-400 max-w-xl mx-auto font-light leading-relaxed">
+                    Wiki54 unifica la inmensa base de datos global con una interfaz minimalista, moderna y fluida para que disfrutes de una lectura concentrada.
+                </p>
+
+                <!-- Barra de búsqueda principal -->
+                <div class="max-w-2xl mx-auto mt-8 px-4 w-full">
+                    <form onsubmit="handleSearch(event, 'heroInput')" class="relative group">
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-brand-500 to-cyan-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-focus-within:opacity-50"></div>
+                        <div class="relative flex items-center bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200/50 dark:border-slate-800 overflow-hidden">
+                            <div class="pl-4 text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                            </div>
+                            <input type="text" id="heroInput" 
+                                   placeholder="Buscar en Wiki54..." 
+                                   class="w-full bg-transparent border-0 focus:ring-0 py-4 px-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
+                            <button type="submit" id="heroSearchBtn" class="m-2 bg-brand-500 hover:bg-brand-600 text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors shadow-md">
+                                Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="pt-4">
+                    <span id="popularLabel" class="text-xs text-slate-400 uppercase tracking-widest block mb-2">Temas Populares</span>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <button id="chipAI" onclick="quickSearch('Inteligencia artificial')" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950 hover:text-brand-500 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 transition-all font-medium">🤖 IA</button>
+                        <button id="chipBlackHoles" onclick="quickSearch('Agujero negro')" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950 hover:text-brand-500 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 transition-all font-medium">🌌 Agujeros Negros</button>
+                        <button id="chipRenaissance" onclick="quickSearch('Renacimiento')" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950 hover:text-brand-500 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 transition-all font-medium">🎨 Renacimiento</button>
+                        <button id="chipSolarSystem" onclick="quickSearch('Sistema solar')" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950 hover:text-brand-500 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 transition-all font-medium">🪐 Sistema Solar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultsView" class="hidden flex-1 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+                <div>
+                    <h2 id="resultsFoundLabel" class="text-xs font-semibold uppercase tracking-wider text-brand-500">Resultados encontrados</h2>
+                    <h1 class="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white" id="resultsQueryTitle">"Búsqueda"</h1>
+                </div>
+                <button onclick="goToHome()" class="self-start sm:self-auto text-sm text-slate-500 hover:text-brand-500 font-medium transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> <span id="resultsBackBtnText">Volver al inicio</span>
+                </button>
+            </div>
+
+            <!-- Loader de Búsqueda -->
+            <div id="resultsLoader" class="flex flex-col items-center justify-center py-20 space-y-4">
+                <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-brand-500 animate-spin"></div>
+                <p id="resultsLoaderText" class="text-sm text-slate-500 dark:text-slate-400">Consultando la gran base de datos...</p>
+            </div>
+
+            <!-- Contenedor vacío o sin resultados -->
+            <div id="noResultsContainer" class="hidden text-center py-16 space-y-4">
+                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 text-slate-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 id="noResultsTitle" class="font-serif text-xl font-bold">No encontramos coincidencias</h3>
+                <p id="noResultsDesc" class="text-sm text-slate-500 max-w-md mx-auto">Prueba buscando con palabras clave diferentes o verifica que el idioma de búsqueda seleccionado sea el correcto.</p>
+            </div>
+
+            <!-- Grid de Tarjetas de Artículos -->
+            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se inyecta dinámicamente -->
+            </div>
+        </section>
+
+        <section id="readerView" class="hidden flex-1 max-w-3xl mx-auto w-full space-y-8">
+            
+            <!-- Barra de navegación e interacción del artículo -->
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                <button onclick="backToPrev()" class="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-brand-500 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> <span id="readerBackText">Atrás</span>
+                </button>
+                
+                <!-- Acciones Rápidas sobre el Artículo -->
+                <div class="flex items-center gap-2">
+                    <!-- Botón de Audio (TTS) -->
+                    <button id="ttsButton" onclick="toggleSpeech()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-brand-500 dark:hover:bg-brand-600 text-slate-600 dark:text-slate-300 hover:text-white transition-all flex items-center gap-2 text-sm font-semibold" title="Escuchar artículo">
+                        <i id="ttsIcon" class="fa-solid fa-volume-high"></i>
+                        <span id="ttsText">Escuchar</span>
+                    </button>
+                    <!-- Botón Copiar Enlace -->
+                    <button onclick="copyArticleLink()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-brand-500 hover:text-white dark:hover:bg-brand-600 text-slate-600 dark:text-slate-300 transition-all text-sm" title="Copiar enlace de origen">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loader de Artículo -->
+            <div id="readerLoader" class="flex flex-col items-center justify-center py-20 space-y-4">
+                <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-brand-500 animate-spin"></div>
+                <p id="readerLoaderText" class="text-sm text-slate-500 dark:text-slate-400">Dando formato a la información...</p>
+            </div>
+
+            <!-- Contenido del Artículo -->
+            <article id="articleContentContainer" class="hidden space-y-6">
+                <!-- Portada del Artículo si existe -->
+                <div id="articleHeaderImage" class="w-full h-64 sm:h-96 rounded-2xl overflow-hidden relative shadow-lg hidden">
+                    <img id="articleImageElement" class="w-full h-full object-cover" src="" alt="Portada del tema">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 right-6">
+                        <span id="featuredBadgeText" class="text-xs bg-brand-500 text-white font-bold tracking-widest uppercase px-2.5 py-1 rounded">Wiki54 Destacado</span>
+                    </div>
+                </div>
+
+                <!-- Título e Introducción -->
+                <div class="space-y-2">
+                    <h1 id="articleTitle" class="font-serif text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight"></h1>
+                    <p id="articleLangBadge" class="text-xs text-slate-400 tracking-wider font-semibold uppercase"></p>
+                </div>
+
+                <!-- Render de Wikipedia (Cuerpo de Texto) -->
+                <div id="articleBody" class="wiki-content prose dark:prose-invert max-w-none text-slate-800 dark:text-slate-200">
+                    <!-- Se renderiza vía API -->
+                </div>
+            </article>
+        </section>
+
+    </main>
+
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 transition-colors mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+                <span class="font-serif text-lg font-bold text-slate-900 dark:text-white">Wiki<span class="text-brand-500">54</span></span>
+                <p id="footerDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Conocimiento global unificado en un solo lugar. Una interfaz optimizada para leer sin cansancio.
+                </p>
+            </div>
+            <div class="text-xs text-slate-400 space-y-1 sm:text-right">
+                <p id="footerRights">&copy; 2026 Wiki54. Todos los derechos reservados.</p>
+                <p id="footerLicense">La información es extraída de forma libre y transparente bajo licencias Creative Commons.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- DICCIONARIO DE TRADUCCIONES (I18N) ---
+        const translations = {
+            es: {
+                searchPlaceholder: "Buscar en Wiki54...",
+                heroTitle: "Descubre el conocimiento",
+                heroDesc: "Wiki54 unifica la inmensa base de datos global con una interfaz minimalista, moderna y fluida para que disfrutes de una lectura concentrada.",
+                searchBtn: "Buscar",
+                popularTopics: "Temas Populares",
+                chipAI: "🤖 IA",
+                chipBlackHoles: "🌌 Agujeros Negros",
+                chipRenaissance: "🎨 Renacimiento",
+                chipSolarSystem: "🪐 Sistema Solar",
+                queryAI: "Inteligencia artificial",
+                queryBlackHoles: "Agujero negro",
+                queryRenaissance: "Renacimiento",
+                querySolarSystem: "Sistema solar",
+                resultsFound: "Resultados encontrados",
+                backToHome: "Volver al inicio",
+                resultsLoading: "Consultando la gran base de datos...",
+                noResultsTitle: "No encontramos coincidencias",
+                noResultsDesc: "Prueba buscando con palabras clave diferentes o verifica que el idioma de búsqueda seleccionado sea el correcto.",
+                readArticle: "Leer artículo",
+                back: "Atrás",
+                listen: "Escuchar",
+                stop: "Detener",
+                readerLoading: "Dando formato a la información...",
+                featuredBadge: "Wiki54 Destacado",
+                langBadgePrefix: "Idioma: ",
+                copiedToast: "¡Enlace copiado al portapapeles!",
+                errorTitle: "Error al abrir artículo",
+                errorBody: "No pudimos procesar el artículo",
+                errorSub: "Wikipedia puede estar experimentando problemas de red o la página puede haber sido eliminada.",
+                footerDesc: "Conocimiento global unificado en un solo lugar. Una interfaz optimizada para leer sin cansancio.",
+                footerRights: "© 2026 Wiki54. Todos los derechos reservados.",
+                footerLicense: "La información es extraída de forma libre y transparente bajo licencias Creative Commons."
+            },
+            en: {
+                searchPlaceholder: "Search in Wiki54...",
+                heroTitle: "Discover knowledge",
+                heroDesc: "Wiki54 unifies the immense global database with a minimalist, modern, and fluid interface for focused reading.",
+                searchBtn: "Search",
+                popularTopics: "Popular Topics",
+                chipAI: "🤖 AI",
+                chipBlackHoles: "🌌 Black Holes",
+                chipRenaissance: "🎨 Renaissance",
+                chipSolarSystem: "🪐 Solar System",
+                queryAI: "Artificial intelligence",
+                queryBlackHoles: "Black hole",
+                queryRenaissance: "Renaissance",
+                querySolarSystem: "Solar System",
+                resultsFound: "Results found",
+                backToHome: "Back to home",
+                resultsLoading: "Searching the vast database...",
+                noResultsTitle: "No matches found",
+                noResultsDesc: "Try searching with different keywords or make sure the selected search language is correct.",
+                readArticle: "Read article",
+                back: "Back",
+                listen: "Listen",
+                stop: "Stop",
+                readerLoading: "Formatting information...",
+                featuredBadge: "Wiki54 Featured",
+                langBadgePrefix: "Language: ",
+                copiedToast: "Link copied to clipboard!",
+                errorTitle: "Error opening article",
+                errorBody: "Could not process article",
+                errorSub: "Wikipedia may be experiencing network issues or the page may have been removed.",
+                footerDesc: "Global knowledge unified in one place. An optimized interface for fatigue-free reading.",
+                footerRights: "© 2026 Wiki54. All rights reserved.",
+                footerLicense: "Information is extracted freely and transparently under Creative Commons licenses."
+            },
+            fr: {
+                searchPlaceholder: "Rechercher sur Wiki54...",
+                heroTitle: "Découvrez la connaissance",
+                heroDesc: "Wiki54 unifie l'immense base de données mondiale avec une interface minimaliste, moderne et fluide pour une lecture concentrée.",
+                searchBtn: "Rechercher",
+                popularTopics: "Sujets Populaires",
+                chipAI: "🤖 IA",
+                chipBlackHoles: "🌌 Trous Noirs",
+                chipRenaissance: "🎨 Renaissance",
+                chipSolarSystem: "🪐 Système Solaire",
+                queryAI: "Intelligence artificielle",
+                queryBlackHoles: "Trou noir",
+                queryRenaissance: "Renaissance",
+                querySolarSystem: "Système solaire",
+                resultsFound: "Résultats trouvés",
+                backToHome: "Retour à l'accueil",
+                resultsLoading: "Consultation de la grande base de données...",
+                noResultsTitle: "Aucune correspondance trouvée",
+                noResultsDesc: "Essayez de chercher avec d'autres mots-clés ou vérifiez que la langue de recherche sélectionnée est correcte.",
+                readArticle: "Lire l'article",
+                back: "Retour",
+                listen: "Écouter",
+                stop: "Arrêter",
+                readerLoading: "Mise en forme des informations...",
+                featuredBadge: "Wiki54 En Vedette",
+                langBadgePrefix: "Langue : ",
+                copiedToast: "Lien copié dans le presse-papier !",
+                errorTitle: "Erreur lors de l'ouverture de l'article",
+                errorBody: "Impossible de traiter l'article",
+                errorSub: "Wikipédia rencontre peut-être des problèmes de réseau ou la page a été supprimée.",
+                footerDesc: "Connaissance globale unifiée en un seul endroit. Une interface optimisée pour une lecture sans fatigue.",
+                footerRights: "© 2026 Wiki54. Tous droits réservés.",
+                footerLicense: "Les informations sont extraites librement et en toute transparence sous licences Creative Commons."
+            },
+            pt: {
+                searchPlaceholder: "Pesquisar no Wiki54...",
+                heroTitle: "Descubra o conhecimento",
+                heroDesc: "O Wiki54 unifica o imenso banco de dados global com uma interface minimalista, moderna e fluida para uma leitura concentrada.",
+                searchBtn: "Pesquisar",
+                popularTopics: "Tópicos Populares",
+                chipAI: "🤖 IA",
+                chipBlackHoles: "🌌 Buracos Negros",
+                chipRenaissance: "🎨 Renascença",
+                chipSolarSystem: "🪐 Sistema Solar",
+                queryAI: "Inteligência artificial",
+                queryBlackHoles: "Buraco negro",
+                queryRenaissance: "Renascimento",
+                querySolarSystem: "Sistema Solar",
+                resultsFound: "Resultados encontrados",
+                backToHome: "Voltar ao início",
+                resultsLoading: "Consultando o grande banco de dados...",
+                noResultsTitle: "Nenhuma correspondência encontrada",
+                noResultsDesc: "Tente pesquisar com palavras-chave diferentes ou verifique se o idioma de pesquisa selecionado está correto.",
+                readArticle: "Ler artigo",
+                back: "Voltar",
+                listen: "Ouvir",
+                stop: "Parar",
+                readerLoading: "Formatando informações...",
+                featuredBadge: "Wiki54 Destaque",
+                langBadgePrefix: "Idioma: ",
+                copiedToast: "Link copiado para a área de transferência!",
+                errorTitle: "Erro ao abrir artigo",
+                errorBody: "Não foi possível processar o artigo",
+                errorSub: "A Wikipédia pode estar enfrentando problemas de rede ou a página pode ter sido removida.",
+                footerDesc: "Conhecimento global unificado em um só lugar. Uma interface otimizada para uma leitura sem cansaço.",
+                footerRights: "© 2026 Wiki54. Todos os direitos reservados.",
+                footerLicense: "As informações são extraídas de forma livre e transparente sob licenças Creative Commons."
+            }
+        };
+
+        // --- ESTADO GLOBAL ---
+        let currentLanguage = 'es';
+        let currentArticleTitle = '';
+        let currentArticleUrl = '';
+        let historyStack = []; // Permite volver atrás correctamente entre búsquedas y artículos
+        let speechUtterance = null; // Instancia de síntesis de voz
+        let isSpeaking = false;
+
+        function applyLanguageUI() {
+            const t = translations[currentLanguage] || translations.es;
+            
+            // Buscadores
+            const navIn = document.getElementById('navInput');
+            const heroIn = document.getElementById('heroInput');
+            if (navIn) navIn.placeholder = t.searchPlaceholder;
+            if (heroIn) heroIn.placeholder = t.searchPlaceholder;
+            
+            // Hero
+            const heroTitle = document.getElementById('heroTitle');
+            const heroDesc = document.getElementById('heroDesc');
+            const heroBtn = document.getElementById('heroSearchBtn');
+            const popLabel = document.getElementById('popularLabel');
+            if (heroTitle) heroTitle.textContent = t.heroTitle;
+            if (heroDesc) heroDesc.textContent = t.heroDesc;
+            if (heroBtn) heroBtn.textContent = t.searchBtn;
+            if (popLabel) popLabel.textContent = t.popularTopics;
+            
+            // Botones de temas sugeridos
+            const btnAI = document.getElementById('chipAI');
+            if (btnAI) {
+                btnAI.textContent = t.chipAI;
+                btnAI.onclick = () => quickSearch(t.queryAI);
+            }
+            const btnBH = document.getElementById('chipBlackHoles');
+            if (btnBH) {
+                btnBH.textContent = t.chipBlackHoles;
+                btnBH.onclick = () => quickSearch(t.queryBlackHoles);
+            }
+            const btnRen = document.getElementById('chipRenaissance');
+            if (btnRen) {
+                btnRen.textContent = t.chipRenaissance;
+                btnRen.onclick = () => quickSearch(t.queryRenaissance);
+            }
+            const btnSS = document.getElementById('chipSolarSystem');
+            if (btnSS) {
+                btnSS.textContent = t.chipSolarSystem;
+                btnSS.onclick = () => quickSearch(t.querySolarSystem);
+            }
+
+            // Resultados
+            const resFound = document.getElementById('resultsFoundLabel');
+            const resBack = document.getElementById('resultsBackBtnText');
+            const resLoad = document.getElementById('resultsLoaderText');
+            const noResTitle = document.getElementById('noResultsTitle');
+            const noResDesc = document.getElementById('noResultsDesc');
+            if (resFound) resFound.textContent = t.resultsFound;
+            if (resBack) resBack.textContent = t.backToHome;
+            if (resLoad) resLoad.textContent = t.resultsLoading;
+            if (noResTitle) noResTitle.textContent = t.noResultsTitle;
+            if (noResDesc) noResDesc.textContent = t.noResultsDesc;
+
+            // Reader
+            const readerBack = document.getElementById('readerBackText');
+            const ttsText = document.getElementById('ttsText');
+            const readerLoad = document.getElementById('readerLoaderText');
+            const featBadge = document.getElementById('featuredBadgeText');
+            if (readerBack) readerBack.textContent = t.back;
+            if (ttsText) ttsText.textContent = isSpeaking ? t.stop : t.listen;
+            if (readerLoad) readerLoad.textContent = t.readerLoading;
+            if (featBadge) featBadge.textContent = t.featuredBadge;
+            if (currentArticleTitle) {
+                const langBadge = document.getElementById('articleLangBadge');
+                if (langBadge) langBadge.textContent = `${t.langBadgePrefix}${currentLanguage.toUpperCase()}`;
+            }
+
+            // Footer
+            const footDesc = document.getElementById('footerDesc');
+            const footRights = document.getElementById('footerRights');
+            const footLicense = document.getElementById('footerLicense');
+            if (footDesc) footDesc.textContent = t.footerDesc;
+            if (footRights) footRights.textContent = t.footerRights;
+            if (footLicense) footLicense.textContent = t.footerLicense;
+        }
+
+        // --- INICIALIZACIÓN ---
+        window.onload = function() {
+            // Cargar modo preferido si existe
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun text-lg';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-moon text-lg';
+            }
+
+            // Inicializar selección de idioma según preferencia guardada
+            const savedLang = localStorage.getItem('wiki54_lang');
+            if (savedLang && translations[savedLang]) {
+                currentLanguage = savedLang;
+                document.getElementById('langSelect').value = savedLang;
+            }
+
+            // Aplicar textos del idioma seleccionado a toda la UI
+            applyLanguageUI();
+        }
+
+        function changeView(viewId) {
+            // Cancelar narración de voz al cambiar de vista
+            stopSpeech();
+
+            const homeView = document.getElementById('homeView');
+            const resultsView = document.getElementById('resultsView');
+            const readerView = document.getElementById('readerView');
+            const navSearchContainer = document.getElementById('navSearchContainer');
+
+            // Ocultar todas las vistas
+            homeView.classList.add('hidden');
+            resultsView.classList.add('hidden');
+            readerView.classList.add('hidden');
+            navSearchContainer.classList.add('hidden');
+
+            if (viewId === 'home') {
+                homeView.classList.remove('hidden');
+                document.getElementById('heroInput').value = '';
+                document.getElementById('navInput').value = '';
+                historyStack = [];
+            } else if (viewId === 'results') {
+                resultsView.classList.remove('hidden');
+                navSearchContainer.classList.remove('hidden');
+            } else if (viewId === 'reader') {
+                readerView.classList.remove('hidden');
+                navSearchContainer.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToHome() {
+            changeView('home');
+        }
+
+        function backToPrev() {
+            if (historyStack.length > 1) {
+                historyStack.pop(); // Sacar actual
+                const prev = historyStack.pop(); // Obtener el anterior
+                if (prev.type === 'search') {
+                    performSearch(prev.query);
+                } else if (prev.type === 'article') {
+                    openArticle(prev.title);
+                }
+            } else {
+                goToHome();
+            }
+        }
+
+        function handleSearch(event, inputId) {
+            if (event) event.preventDefault();
+            const inputVal = document.getElementById(inputId).value.trim();
+            if (inputVal) {
+                performSearch(inputVal);
+            }
+        }
+
+        function quickSearch(queryText) {
+            performSearch(queryText);
+        }
+
+        // Consulta general a Wikipedia con soporte de redirección
+        async function performSearch(query) {
+            if (!query) return;
+
+            // Sincronizar inputs
+            document.getElementById('navInput').value = query;
+            document.getElementById('heroInput').value = query;
+
+            // Registrar en historial para volver atrás
+            historyStack.push({ type: 'search', query: query });
+
+            changeView('results');
+            document.getElementById('resultsQueryTitle').textContent = `"${query}"`;
+            
+            // UI Loaders
+            document.getElementById('resultsLoader').classList.remove('hidden');
+            document.getElementById('resultsGrid').classList.add('hidden');
+            document.getElementById('noResultsContainer').classList.add('hidden');
+
+            try {
+                // Endpoint de búsqueda de Wikipedia
+                const url = `https://${currentLanguage}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response error');
+                
+                const data = await response.json();
+                const searchResults = data.query?.search || [];
+
+                if (searchResults.length === 0) {
+                    showNoResults();
+                    return;
+                }
+
+                // Obtener imágenes miniatura para todos los resultados para que sea visualmente espectacular
+                const pageIds = searchResults.map(item => item.pageid).join('|');
+                let thumbnails = {};
+                
+                if (pageIds) {
+                    const imgUrl = `https://${currentLanguage}.wikipedia.org/w/api.php?action=query&pageids=${pageIds}&prop=pageimages&pithumbsize=400&format=json&origin=*`;
+                    try {
+                        const imgRes = await fetch(imgUrl);
+                        const imgData = await imgRes.json();
+                        const pages = imgData.query?.pages || {};
+                        for (let pid in pages) {
+                            if (pages[pid].thumbnail) {
+                                thumbnails[pid] = pages[pid].thumbnail.source;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error cargando miniaturas', e);
+                    }
+                }
+
+                renderResultsGrid(searchResults, thumbnails);
+
+            } catch (err) {
+                console.error('Error de API:', err);
+                showNoResults();
+            }
+        }
+
+        function renderResultsGrid(results, thumbnails) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+            const t = translations[currentLanguage] || translations.es;
+
+            results.forEach(item => {
+                const hasThumb = thumbnails[item.pageid];
+                const placeholder = `https://placehold.co/400x250/1e293b/ffffff?text=${encodeURIComponent(item.title)}`;
+                const imgSrc = hasThumb ? hasThumb : placeholder;
+
+                const card = document.createElement('div');
+                card.className = "group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 overflow-hidden shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300 cursor-pointer flex flex-col justify-between";
+                card.onclick = () => openArticle(item.title);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="h-48 overflow-hidden relative bg-slate-100 dark:bg-slate-850">
+                            <img src="${imgSrc}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='${placeholder}';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                        </div>
+                        <div class="p-5 space-y-3">
+                            <h3 class="font-serif text-lg font-bold text-slate-900 dark:text-white group-hover:text-brand-500 transition-colors line-clamp-2">${item.title}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">${cleanSnippets(item.snippet)}...</p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-500 group-hover:underline">
+                            ${t.readArticle} <i class="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-1"></i>
+                        </span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('resultsLoader').classList.add('hidden');
+            grid.classList.remove('hidden');
+        }
+
+        function showNoResults() {
+            document.getElementById('resultsLoader').classList.add('hidden');
+            document.getElementById('resultsGrid').classList.add('hidden');
+            document.getElementById('noResultsContainer').classList.remove('hidden');
+        }
+
+        function cleanSnippets(htmlText) {
+            const div = document.createElement("div");
+            div.innerHTML = htmlText;
+            return div.textContent || div.innerText || "";
+        }
+
+        async function openArticle(title) {
+            if (!title) return;
+
+            // Guardar en el stack de navegación
+            historyStack.push({ type: 'article', title: title });
+
+            currentArticleTitle = title;
+            currentArticleUrl = `https://${currentLanguage}.wikipedia.org/wiki/${encodeURIComponent(title)}`;
+
+            changeView('reader');
+
+            // Resetear vistas de carga
+            document.getElementById('readerLoader').classList.remove('hidden');
+            document.getElementById('articleContentContainer').classList.add('hidden');
+            document.getElementById('articleHeaderImage').classList.add('hidden');
+
+            const t = translations[currentLanguage] || translations.es;
+
+            try {
+                // 1. Obtener imagen principal de alta calidad del artículo con redirecciones activadas
+                fetchHighResImage(title);
+
+                // 2. Obtener el texto parseado de Wikipedia activando redirecciones (redirects=1)
+                const parseUrl = `https://${currentLanguage}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&redirects=1&prop=text|displaytitle&format=json&origin=*&disablelimitreport=1&disabletoc=1`;
+                const response = await fetch(parseUrl);
+                if (!response.ok) throw new Error('Error al cargar contenido de Wikipedia');
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.info || 'Artículo no encontrado');
+                }
+
+                // Usar el título resuelto canónico de Wikipedia
+                const canonicalTitle = data.parse?.title || title;
+                currentArticleTitle = canonicalTitle;
+
+                let rawHtml = data.parse?.text?.['*'] || '';
+                
+                // Normalizar protocolo de imágenes (reemplazar //upload.wikimedia.org con https://upload.wikimedia.org)
+                rawHtml = rawHtml.replace(/src="\/\//g, 'src="https://').replace(/srcset="\/\//g, 'srcset="https://');
+
+                // Preparar UI
+                document.getElementById('articleTitle').textContent = canonicalTitle;
+                document.getElementById('articleLangBadge').textContent = `${t.langBadgePrefix}${currentLanguage.toUpperCase()}`;
+                
+                const bodyContainer = document.getElementById('articleBody');
+                bodyContainer.innerHTML = rawHtml;
+
+                // Interceptar enlaces para navegación interna transparente
+                const anchors = bodyContainer.querySelectorAll('a');
+                anchors.forEach(a => {
+                    const href = a.getAttribute('href');
+                    if (href && href.startsWith('/wiki/')) {
+                        const newTitle = decodeURIComponent(href.replace('/wiki/', '')).replace(/_/g, ' ');
+                        a.removeAttribute('href'); 
+                        a.style.cursor = 'pointer';
+                        a.onclick = (e) => {
+                            e.preventDefault();
+                            openArticle(newTitle);
+                        };
+                    } else if (href && href.startsWith('#')) {
+                        a.onclick = (e) => {
+                            e.preventDefault();
+                            const target = document.getElementById(href.substring(1));
+                            if (target) {
+                                target.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        };
+                    } else {
+                        a.setAttribute('target', '_blank');
+                        a.setAttribute('rel', 'noopener noreferrer');
+                    }
+                });
+
+                // Mostrar Contenido
+                document.getElementById('readerLoader').classList.add('hidden');
+                document.getElementById('articleContentContainer').classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('readerLoader').classList.add('hidden');
+                document.getElementById('articleTitle').textContent = t.errorTitle;
+                document.getElementById('articleLangBadge').textContent = "";
+                document.getElementById('articleBody').innerHTML = `
+                    <div class="text-center py-10 space-y-4">
+                        <i class="fa-solid fa-triangle-exclamation text-4xl text-red-500"></i>
+                        <p class="text-lg font-bold">${t.errorBody} "${title}"</p>
+                        <p class="text-slate-500">${t.errorSub}</p>
+                        <button onclick="goToHome()" class="px-5 py-2 bg-brand-500 text-white font-semibold rounded-lg hover:bg-brand-600 transition-colors">${t.backToHome}</button>
+                    </div>
+                `;
+                document.getElementById('articleContentContainer').classList.remove('hidden');
+            }
+        }
+
+        async function fetchHighResImage(title) {
+            const url = `https://${currentLanguage}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&redirects=1&prop=pageimages&piprop=original&format=json&origin=*`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const pages = data.query?.pages || {};
+                let imageSrc = null;
+
+                for (let pid in pages) {
+                    if (pages[pid].original) {
+                        imageSrc = pages[pid].original.source;
+                    }
+                }
+
+                if (imageSrc) {
+                    // Normalizar protocolo de imagen destacada
+                    if (imageSrc.startsWith('//')) {
+                        imageSrc = 'https:' + imageSrc;
+                    }
+                    const imgElem = document.getElementById('articleImageElement');
+                    imgElem.src = imageSrc;
+                    document.getElementById('articleHeaderImage').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.warn('No se pudo cargar la imagen destacada:', e);
+            }
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) {
+                stopSpeech();
+            } else {
+                startSpeech();
+            }
+        }
+
+        function startSpeech() {
+            window.speechSynthesis.cancel();
+
+            const bodyText = document.getElementById('articleBody').innerText;
+            if (!bodyText) return;
+
+            const cleanText = bodyText
+                .replace(/\[\d+\]/g, '')
+                .replace(/\[editar\]/gi, '')
+                .slice(0, 4000);
+
+            speechUtterance = new SpeechSynthesisUtterance(cleanText);
+            
+            speechUtterance.lang = currentLanguage === 'en' ? 'en-US' : 
+                                   currentLanguage === 'fr' ? 'fr-FR' : 
+                                   currentLanguage === 'pt' ? 'pt-PT' : 'es-ES';
+
+            const t = translations[currentLanguage] || translations.es;
+
+            speechUtterance.onstart = () => {
+                isSpeaking = true;
+                document.getElementById('ttsIcon').className = "fa-solid fa-circle-stop";
+                document.getElementById('ttsText').textContent = t.stop;
+                document.getElementById('ttsButton').classList.add('bg-red-500', 'hover:bg-red-600', 'text-white');
+            };
+
+            speechUtterance.onend = () => {
+                resetSpeechUI();
+            };
+
+            speechUtterance.onerror = () => {
+                resetSpeechUI();
+            };
+
+            window.speechSynthesis.speak(speechUtterance);
+        }
+
+        function stopSpeech() {
+            window.speechSynthesis.cancel();
+            resetSpeechUI();
+        }
+
+        function resetSpeechUI() {
+            isSpeaking = false;
+            const t = translations[currentLanguage] || translations.es;
+            document.getElementById('ttsIcon').className = "fa-solid fa-volume-high";
+            document.getElementById('ttsText').textContent = t.listen;
+            document.getElementById('ttsButton').classList.remove('bg-red-500', 'hover:bg-red-600', 'text-white');
+            document.getElementById('ttsButton').classList.add('bg-slate-100', 'dark:bg-slate-900', 'text-slate-600', 'dark:text-slate-300');
+        }
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('langSelect').value;
+            localStorage.setItem('wiki54_lang', currentLanguage);
+            
+            applyLanguageUI();
+
+            if (document.getElementById('readerView').classList.contains('hidden') === false && currentArticleTitle) {
+                openArticle(currentArticleTitle);
+            } else if (document.getElementById('resultsView').classList.contains('hidden') === false) {
+                const query = document.getElementById('navInput').value;
+                performSearch(query);
+            }
+        }
+
+        function toggleDarkMode() {
+            const doc = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            
+            if (doc.classList.contains('dark')) {
+                doc.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fa-solid fa-moon text-lg';
+            } else {
+                doc.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fa-solid fa-sun text-lg';
+            }
+        }
+
+        function copyArticleLink() {
+            if (!currentArticleUrl) return;
+            const t = translations[currentLanguage] || translations.es;
+            
+            const el = document.createElement('textarea');
+            el.value = currentArticleUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 animate-bounce border border-slate-700";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${t.copiedToast}`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => toast.remove(), 500);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
